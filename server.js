@@ -4,6 +4,7 @@ var exphbs = require("express-handlebars");
 var bodyParser = require("body-parser");
 var logger = require("morgan");
 const mongoose = require("mongoose");
+var htmlRoutes = require('./routes/htmlRoutes');
 
 // Our scraping tools
 // Axios is a promised-based http library, similar to jQuery's Ajax method
@@ -13,7 +14,7 @@ var request = require("request");
 var cheerio = require("cheerio");
 
 // Require all models
-var db = require("./models");
+var db = require("./models/index");
 
 //Port
 var PORT = process.env.PORT || 3000;
@@ -42,7 +43,7 @@ app.engine("handlebars", exphbs({defaultLayout: "main" }));
 app.set("view engine", "handlebars"); //I still need to hookup controllers?
 
 //Mongoose Connect
-mongoose.connect("mongodb://<cfalk>:<Bt546rn71$>@ds161322.mlab.com:61322/webscraperdb", { useNewUrlParser: true });
+mongoose.connect("mongodb://test:test123@ds161322.mlab.com:61322/webscraperdb", { useNewUrlParser: true });
 
 mongoose.Promise = global.Promise;
 
@@ -62,7 +63,7 @@ mongoose.Promise = global.Promise;
 
 
 // Routes
-
+app.use('/', htmlRoutes);
 // A GET route for scraping the echojs website
 app.get("/scrape", function(req, res) {
   // First, we grab the body of the html with request
@@ -82,8 +83,8 @@ app.get("/scrape", function(req, res) {
       result.link = $(this)
         .children("a")
         .attr("href");
-
-      // Create a new Article using the `result` object built from scraping
+    
+     // Create a new Article using the `result` object built from scraping
       db.Article.create(result)
         .then(function(dbArticle) {
           // View the added result in the console
